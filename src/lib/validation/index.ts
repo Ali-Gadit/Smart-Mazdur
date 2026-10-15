@@ -59,3 +59,72 @@ export const createReviewSchema = z.object({
 });
 
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
+
+// Professional Registration / Onboarding Schema
+export const providerApplicationSchema = z.object({
+  publicName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be under 100 characters"),
+  phone: z
+    .string()
+    .regex(/^(03\d{9}|\+923\d{9})$/, "Invalid Pakistani mobile number (e.g. 03001234567 or +923001234567)"),
+  experienceYears: z
+    .number()
+    .int()
+    .min(0, "Experience years cannot be negative")
+    .max(60, "Experience years must be 60 or less"),
+  bio: z.string().max(1000, "Bio must be under 1000 characters").optional().nullable(),
+  tradeCategoryIds: z.array(z.string().uuid("Invalid category ID")).min(1, "Select at least one trade"),
+  serviceAreaIds: z.array(z.string().uuid("Invalid service area ID")).min(1, "Select at least one service area"),
+  cnicNumber: z
+    .string()
+    .regex(/^(\d{5}-\d{7}-\d{1}|\d{13})$/, "CNIC must be 13 digits (e.g. 42101-1234567-1 or 4210112345671)"),
+});
+
+export type ProviderApplicationInput = z.infer<typeof providerApplicationSchema>;
+
+// Admin Verification Decision Schema
+export const adminVerificationDecisionSchema = z.object({
+  providerId: z.string().uuid("Invalid provider ID"),
+  verificationType: z.enum(["contact", "identity_review", "skill_assessment", "certificate_review"]),
+  categoryId: z.string().uuid("Invalid category ID").optional().nullable(),
+  status: z.enum(["pending", "approved", "rejected", "needs_more_information"]),
+  methodDescription: z
+    .string()
+    .min(5, "Method description must be at least 5 characters")
+    .max(300),
+  resultSummary: z.string().min(3, "Result summary must be at least 3 characters").max(500),
+  privateNotes: z.string().max(1000).optional().nullable(),
+  rejectionReason: z.string().max(500).optional().nullable(),
+});
+
+export type AdminVerificationDecisionInput = z.infer<typeof adminVerificationDecisionSchema>;
+
+// Admin Application Status Decision Schema
+export const adminApplicationDecisionSchema = z.object({
+  providerId: z.string().uuid("Invalid provider ID"),
+  decision: z.enum(["approved", "rejected", "paused", "suspended"]),
+  reason: z.string().min(5, "Reason must be at least 5 characters").max(500),
+});
+
+export type AdminApplicationDecisionInput = z.infer<typeof adminApplicationDecisionSchema>;
+
+// Admin Service Task Management Schema
+export const manageServiceTaskSchema = z.object({
+  categoryId: z.string().uuid("Invalid category ID"),
+  name: z.string().min(3, "Name must be at least 3 characters").max(100),
+  slug: z.string().min(2, "Slug must be at least 2 characters").max(100),
+  description: z.string().min(10, "Description must be at least 10 characters").max(500),
+  pricingMode: z.enum(["fixed", "inspection_quote", "quote_only"]),
+  fixedPrice: z.number().nonnegative("Fixed price must be non-negative").optional().nullable(),
+  visitFee: z.number().nonnegative("Visit fee must be non-negative").optional().nullable(),
+  currency: z.string().default("PKR"),
+  scopeInclusions: z.string().min(5, "Inclusions must be at least 5 characters").max(500),
+  scopeExclusions: z.string().min(5, "Exclusions must be at least 5 characters").max(500),
+  requiresSkillAssessment: z.boolean().default(true),
+  isActive: z.boolean().default(true),
+});
+
+export type ManageServiceTaskInput = z.infer<typeof manageServiceTaskSchema>;
+

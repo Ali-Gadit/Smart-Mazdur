@@ -12,9 +12,12 @@ import {
   AlertTriangle,
   FileText,
   User,
+  ShieldCheck,
+  AlertCircle,
 } from "lucide-react";
 
 export default function ProfessionalDashboardPage() {
+  const [appStatus, setAppStatus] = useState<"pending" | "approved" | "rejected" | "needs_more_information">("approved");
   const [isOnline, setIsOnline] = useState(true);
   const [hasPendingRequest, setHasPendingRequest] = useState(true);
   const [requestStatus, setRequestStatus] = useState<"pending" | "accepted" | "declined">("pending");
@@ -34,47 +37,93 @@ export default function ProfessionalDashboardPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-slate-900">[DEMO] Tariq Mehmood</h1>
-            <span className="text-xs px-2 py-0.5 rounded font-bold bg-teal-100 text-teal-800">
-              Verified Plumber
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                appStatus === "approved"
+                  ? "bg-green-100 text-green-800"
+                  : appStatus === "pending"
+                  ? "bg-amber-100 text-amber-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              Application: {appStatus.toUpperCase()}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">Base: Gulshan-e-Iqbal • Karachi Pilot</p>
         </div>
 
-        <button
-          onClick={() => setIsOnline(!isOnline)}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm ${
-            isOnline
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-          }`}
-        >
-          <Power className="h-4 w-4" />
-          <span>{isOnline ? "Online (Receiving Jobs)" : "Offline"}</span>
-        </button>
+        {appStatus === "approved" ? (
+          <button
+            onClick={() => setIsOnline(!isOnline)}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm ${
+              isOnline
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+            }`}
+          >
+            <Power className="h-4 w-4" />
+            <span>{isOnline ? "Online (Receiving Jobs)" : "Offline"}</span>
+          </button>
+        ) : (
+          <div className="text-xs px-3 py-2 rounded-lg bg-slate-100 text-slate-500 font-medium">
+            Availability locked until admin vetting approved
+          </div>
+        )}
       </div>
 
-      {/* Verification Status Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/60 flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-teal-700 shrink-0" />
-          <div>
-            <h4 className="text-xs font-bold text-slate-900">Identity Review: Approved</h4>
-            <p className="text-[11px] text-slate-600">CNIC inspected manually by operations team</p>
+      {/* Verification Statuses (Honest & Distinct) */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h2 className="text-sm font-bold text-slate-900">Vetting & Compliance Status</h2>
+          <span className="text-[11px] text-slate-500">Separately verified by operations staff</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Identity Review Check */}
+          <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/50 flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-teal-700 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-slate-900">1. CNIC Identity Review</h4>
+                <span className="text-[10px] font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded">
+                  Passed
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600">
+                Government CNIC inspected manually by staff to verify identity and matching photo.
+              </p>
+            </div>
+          </div>
+
+          {/* Trade Skills Assessment */}
+          <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/50 flex items-start gap-3">
+            <ShieldCheck className="h-5 w-5 text-blue-700 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-slate-900">2. Plumbing Trade Skill Assessment</h4>
+                <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded">
+                  Passed
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600">
+                Checklist tested by senior master technician (PPRC joint heating & mixer installation).
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/60 flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-teal-700 shrink-0" />
-          <div>
-            <h4 className="text-xs font-bold text-slate-900">Plumbing Assessment: Passed</h4>
-            <p className="text-[11px] text-slate-600">Observed by senior master technician</p>
+        {appStatus !== "approved" && (
+          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
+            <span>
+              Your profile is currently under review. Our operations coordinator will contact you to complete any outstanding trade assessment steps.
+            </span>
           </div>
-        </div>
+        )}
       </div>
 
       {/* New Booking Request Alert */}
-      {hasPendingRequest && requestStatus === "pending" && (
+      {hasPendingRequest && requestStatus === "pending" && appStatus === "approved" && (
         <div className="rounded-2xl border-2 border-teal-600 bg-white p-6 shadow-md space-y-4">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
